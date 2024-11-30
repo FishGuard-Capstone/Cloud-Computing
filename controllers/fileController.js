@@ -17,7 +17,7 @@ class FileController {
       const fileName = `${userId}/${uuidv4()}${path.extname(file.originalname)}`;
       
       // Upload ke Google Cloud Storage
-      const cloudFile = bucket.file(fileName);
+      const cloudFile = bucket.file(fish-img-data);
       await cloudFile.save(file.buffer, {
         metadata: {
           contentType: file.mimetype
