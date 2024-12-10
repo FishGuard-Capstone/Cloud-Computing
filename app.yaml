@@ -1,0 +1,9 @@
+runtime: nodejs18
+
+instance_class: F1
+
+# Handlers untuk menangani file upload dan static files
+handlers:
+- url: /uploads
+  static_dir: uploads
+  secure: always

@@ -9,6 +9,7 @@ const storyRoutes = require('./storyRoutes');
 router.use('/auth', authRoutes);
 router.use('/stories', storyRoutes);
 
+// Export the router
 module.exports = {
     authRoutes,
     storyRoutes

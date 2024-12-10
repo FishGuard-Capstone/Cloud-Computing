@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { initFirebase } = require('../config/firebase');
+const { initFirestore } = require('../config/firestore.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const db = initFirebase();
+const db = initFirestore();
 
 // Register Endpoint
 router.post('/register', async (req, res) => {
