@@ -15,7 +15,7 @@ const initFirebase = () => {
       auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
       client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/fishguard%40capstone-fish-guard.iam.gserviceaccount.com"
     }),
-    databaseURL: process.env.FIREBASE_DATABASE_URL
+    databaseURL: '@google-cloud/firestore'
   });
 
   return admin.firestore();
