@@ -9,4 +9,7 @@ const storyRoutes = require('./storyRoutes');
 router.use('/auth', authRoutes);
 router.use('/stories', storyRoutes);
 
-module.exports = router;
+module.exports = {
+    authRoutes,
+    storyRoutes
+  };
