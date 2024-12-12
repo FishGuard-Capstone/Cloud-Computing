@@ -1,9 +1,15 @@
+#app.yaml
 runtime: nodejs18
 
-instance_class: F1
+env_variables:
+  GOOGLE_APPLICATION_CREDENTIALS: "fishguard-key69.json"
+  JWT_SECRET: "fishguardslebew69"
 
-# Handlers untuk menangani file upload dan static files
 handlers:
-- url: /uploads
-  static_dir: uploads
-  secure: always
+  - url: /static
+    static_dir: static/
+
+  - url: /.*  # Menangani semua rute lainnya dengan aplikasi Node.js
+    script: auto
+
+instance_class: F2
