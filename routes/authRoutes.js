@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { initFirestore } = require('../config/firestore.js');
+const { initFirestore } = require('../config/firestore');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -11,11 +11,8 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check if user already exists
-    const userSnapshot = await db.collection('users')
-      .where('email', '==', email)
-      .get();
-    
+    // Cek apakah user sudah ada
+    const userSnapshot = await db.collection('users').where('email', '==', email).get();
     if (!userSnapshot.empty) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -23,7 +20,7 @@ router.post('/register', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user document
+    // Buat user di Firestore
     const userRef = await db.collection('users').add({
       username,
       email,
@@ -45,22 +42,18 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const userSnapshot = await db.collection('users')
-      .where('email', '==', email)
-      .get();
-    
+    // Cari user berdasarkan email
+    const userSnapshot = await db.collection('users').where('email', '==', email).get();
     if (userSnapshot.empty) {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    // Get user data
+    // Ambil data user
     const userData = userSnapshot.docs[0].data();
     const userId = userSnapshot.docs[0].id;
 
-    // Compare passwords
+    // Bandingkan password
     const isMatch = await bcrypt.compare(password, userData.password);
-    
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -75,11 +68,7 @@ router.post('/login', async (req, res) => {
     res.json({ 
       message: 'Login successful', 
       token: token,
-      user: {
-        id: userId,
-        username: userData.username,
-        email: userData.email
-      }
+      user: { id: userId, username: userData.username, email: userData.email }
     });
   } catch (error) {
     res.status(500).json({ message: 'Login error', error: error.message });
