@@ -182,7 +182,6 @@ app.post('/stories', upload, async (req, res) => {
         photo: publicUrl,
         lat: lat ? parseFloat(lat) : null,
         lon: lon ? parseFloat(lon) : null,
-        createdAt: Firestore.Timestamp.now(),
       });
 
       return res.status(201).json({ 
@@ -203,7 +202,7 @@ app.post('/stories', upload, async (req, res) => {
 // Endpoint untuk mendapatkan semua story
 app.get('/stories', async (req, res) => {
   try {
-    const snapshot = await firestore.collection('stories').orderBy('createdAt', 'desc').get();
+    const snapshot = await firestore.collection('stories').orderBy('desc').get();
     if (snapshot.empty) {
       return res.status(404).json({ error: 'No stories found' });
     }
