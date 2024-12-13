@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const {Firestore} = require('@google-cloud/firestore');
+const {Storage} = require('@google-cloud/storage');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -16,6 +17,14 @@ const firestore = new Firestore({
     cacheSizeBytes: 10 * 1024 * 1024, // Cache size
   }
 });
+
+// Inisialisasi Google Cloud Storage
+const storage = new Storage({
+  projectId: 'capstone-fish-guard',
+  keyFilename: 'fishguard-key69.json'
+});
+const bucketName = 'fish-img-data';
+const bucket = storage.bucket(bucketName);
 
 // Inisialisasi Express
 const app = express();
@@ -145,20 +154,46 @@ app.post('/stories', upload, async (req, res) => {
   }
 
   try {
-    // Mengonversi gambar ke base64
-    const base64Image = req.file.buffer.toString('base64');
+    // Generate unique filename
+    const filename = `story-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(req.file.originalname)}`;
+    
+    // Create a blob in Google Cloud Storage
+    const blob = bucket.file(filename);
+    const blobStream = blob.createWriteStream();
 
-    // Menyimpan gambar dalam Firestore sebagai base64
-    const storyRef = firestore.collection('stories').doc();
-    await storyRef.set({
-      description,
-      photo: base64Image, // Menyimpan gambar dalam format base64
-      lat: lat ? parseFloat(lat) : null,
-      lon: lon ? parseFloat(lon) : null,
-      createdAt: Firestore.Timestamp.now(),
+    // Handle upload errors
+    blobStream.on('error', (err) => {
+      console.error(err);
+      return res.status(500).json({ error: 'Gagal mengunggah gambar' });
     });
 
-    return res.status(201).json({ message: 'Story berhasil diupload', photo: base64Image });
+    // Handle successful upload
+    blobStream.on('finish', async () => {
+      // Make the file publicly accessible
+      await blob.makePublic();
+
+      // Generate public URL
+      const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+
+      // Simpan detail story di Firestore
+      const storyRef = firestore.collection('stories').doc();
+      await storyRef.set({
+        description,
+        photo: publicUrl,
+        lat: lat ? parseFloat(lat) : null,
+        lon: lon ? parseFloat(lon) : null,
+        createdAt: Firestore.Timestamp.now(),
+      });
+
+      return res.status(201).json({ 
+        message: 'Story berhasil diupload', 
+        photoUrl: publicUrl 
+      });
+    });
+
+    // Write the file to the bucket
+    blobStream.end(req.file.buffer);
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Terjadi kesalahan pada server' });

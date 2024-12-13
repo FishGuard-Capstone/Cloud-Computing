@@ -4,6 +4,7 @@ runtime: nodejs18
 env_variables:
   GOOGLE_APPLICATION_CREDENTIALS: "fishguard-key69.json"
   JWT_SECRET: "fishguardslebew69"
+  BUCKET_NAME: "fish-img-data"
 
 handlers:
   - url: /static
@@ -13,3 +14,5 @@ handlers:
     script: auto
 
 instance_class: F2
+
+env: standard
